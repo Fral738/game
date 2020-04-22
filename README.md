@@ -1,4 +1,5 @@
 #### Pygame Project
+[![Pygame logo](https://www.pygame.org/images/logo_lofi.png)](https://www.pygame.org/)
 
 В данном репозитории скоро будет ~~офигенный~~ проект
 
