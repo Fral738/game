@@ -20,6 +20,7 @@ speed = 1
 pygame.init()
 main_Clock = pygame.time.Clock()  # Добавляем таймер, своего рода FPS - количество кадров в секунду
 screen = pygame.display.set_mode((res_heigh, res_width))  # Создаем окно с размерами 1920x1080
+flags = screen.get_flags()
 
 pygame.display.set_caption("Fral's game")  # Задаем название окна
 font = pygame.font.SysFont(None, 40)  # Задаем размер шрифта
@@ -123,7 +124,7 @@ def game(x_player, y_player, motion):  # Функция окна "Играть"
 
 
 def options(screen):  # Функция окна "Настройки"
-    global res_width, res_heigh
+    global res_width, res_heigh, flags
     screen.fill(black)  # Пока запущено
     while True:
         mx, my = pygame.mouse.get_pos()  # переменные для хранения позиции мыши
@@ -150,12 +151,13 @@ def options(screen):  # Функция окна "Настройки"
                     click = True  # инвертируем флаг
 
         if full_screen.collidepoint(mx, my) and click:
-            if count == 0:
-                screen = pygame.display.set_mode((heigh[0], width[0]), pygame.FULLSCREEN)
-                count = 1
-            elif count == 1:
-                screen = pygame.display.set_mode((heigh[0], width[0]))
-                count = 0
+            if flags & FULLSCREEN == False:
+                flags |= FULLSCREEN
+                pygame.display.set_mode((heigh[0], width[0]), flags)
+                res_heigh, res_width = heigh[0], width[0]
+            else:
+                flags ^= FULLSCREEN
+                pygame.display.set_mode((res_heigh, res_width), flags)
         if resolution.collidepoint(mx, my) and click:
             screen.fill(black)  # Пока запущено
             pygame.draw.rect(screen, red, full_hd)  # Отрисовка кнопки
