@@ -135,12 +135,14 @@ def options(screen):  # Функция окна "Настройки"
         full_hd = pygame.Rect(350, 100, 200, 50)  # Параметры прямоугольника для кнопки
         wxga = pygame.Rect(600, 100, 200, 50)  # Параметры прямоугольника для кнопки
         hd = pygame.Rect(850, 100, 200, 50)  # Параметры прямоугольника для кнопки
+        back = pygame.Rect(100, 300, 200, 50)  # Параметры прямоугольника для кнопки
 
         pygame.draw.rect(screen, red, resolution)  # Отрисовка кнопки
         draw_text('Resolution', font, white, screen, 100, 100)  # Отрисовка текста кнопки
         pygame.draw.rect(screen, red, full_screen)  # Отрисовка кнопки
         draw_text('Full screen', font, white, screen, 100, 200)  # Отрисовка текста кнопки
-        count = 0 # пока что счетчик для проверки вкл или вылк full screen
+        pygame.draw.rect(screen, red, back)
+        draw_text('Back', font, white, screen, 100, 300)
 
         for event in pygame.event.get():  # Считывание всех действий мыши и клавиатуры
             if event.type == KEYDOWN:  # Условие на нажатие любой кнопки
@@ -167,6 +169,8 @@ def options(screen):  # Функция окна "Настройки"
             pygame.draw.rect(screen, red, hd)  # Отрисовка кнопки
             draw_text('1280x720', font, white, screen, 850, 100)  # Отрисовка текста кнопки
             pygame.display.update()
+        if back.collidepoint(mx, my) and click:
+            main_menu(screen)
         if full_hd.collidepoint(mx, my) and click:
             screen = pygame.display.set_mode((heigh[0], width[0]))
             res_heigh = heigh[0]
