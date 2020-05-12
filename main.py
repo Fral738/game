@@ -18,6 +18,9 @@ speed = 1
 
 # Инициализация pygame
 pygame.init()
+pygame.mixer_music.load('music.mp3')
+pygame.mixer_music.play()
+pygame.mixer_music.set_volume(0.1)
 main_Clock = pygame.time.Clock()  # Добавляем таймер, своего рода FPS - количество кадров в секунду
 screen = pygame.display.set_mode((res_heigh, res_width))  # Создаем окно с размерами 1920x1080
 flags = screen.get_flags()
