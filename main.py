@@ -91,11 +91,11 @@ class Bullet(pygame.sprite.Sprite):
             self.image = pygame.transform.rotate(self.image, 180)
 
 
-def draw_text(text, font, color, surface, x, y):  # Функция отрисовки текста
+def draw_text(text, font, color, screen, x, y):  # Функция отрисовки текста
     texobj = font.render(text, 1, color)
     textrect = texobj.get_rect()
-    textrect.topleft = (x, y)
-    surface.blit(texobj, textrect)
+    textrect.center = (x, y)
+    screen.blit(texobj, textrect)
 
 def draw_repeating_background(background_img):
     new_image = pygame.transform.scale(background_img, (res_width, res_height))
@@ -107,7 +107,7 @@ def main_menu(screen):  # Функция окна "Главное меню"
     pygame.mixer_music.play()
     while True:
         screen.fill(black)  # Заполнение экрана черным фоном
-        draw_text('main menu', font, white, screen, 20, 20)  # Отрисовка белого текста
+        draw_text('main menu', font, white, screen, res_width / 2, 20)  # Отрисовка белого текста
 
         mx, my = pygame.mouse.get_pos()  # переменные для хранения позиции мыши
 
@@ -147,45 +147,40 @@ def game():  # Функция окна "Играть"
     paused = False
     click = False
     mx, my = pygame.mouse.get_pos()
-    screen.fill(black)
-    draw_text('game', font, (255, 255, 255), screen, 20, 20)
     square = Block()
     background_surf = pygame.image.load('background.png')
-    background_rect = background_surf.get_rect(bottomright=(res_height, res_width))
-    screen.blit(background_surf, background_rect)
+    draw_repeating_background(background_surf)
     screen.blit(square.img, square.rect)
     pygame.display.update()
     shuffle()
     while True:  # Пока запущено
-        mx, my = pygame.mouse.get_pos()
-        print(mx, my)
+        pause_mx, pause_my = pygame.mouse.get_pos()
         for event in pygame.event.get():
             if event.type == KEYDOWN:  # Условие на нажатие любой кнопки
                 if event.key == K_ESCAPE:
                     pygame.mixer_music.stop()# Условие на нажатие кнопки Escape
+                if (event.key == pygame.K_SPACE) and (mx-20 <= pause_mx <= mx+20) and (my-20 <= pause_my <= my+20):
+                    paused = False
+                if event.key == K_ESCAPE:  # Условие на нажатие кнопки Escapezz
                     main_menu(screen)  # Возвращение в главное меню
-        screen.blit(square.img, (mx-15, my-15))
         pygame.time.Clock().tick(60)
-        pygame.display.flip
+        pygame.display.update()
         if not paused:
+            mx, my = pygame.mouse.get_pos()
+            pygame.mouse.set_visible(False)
             draw_repeating_background(background_surf)
+            screen.blit(square.img, (mx - 15, my - 15))
             for event in pygame.event.get():
                 if event.type == pygame.KEYDOWN:
-                    if event.type == MOUSEBUTTONDOWN:  # Условие на нажатие левой кнопки мыши
-                        if event.button == 1:  # Если нажата
-                            click = True  # инвертируем флаг
                     if event.key == pygame.K_SPACE:
-                        paused = not paused
+                        paused = True
                         if paused:
                             transp_surf = pygame.Surface((res_width, res_height))
                             transp_surf.set_alpha(150)
                             screen.blit(transp_surf, transp_surf.get_rect())
                             pygame.mouse.set_visible(True)
-                            exit_butt = pygame.Rect(50, 200, 200, 50)  # Параметры прямоугольника для кнопки
-                            pygame.draw.rect(screen, red, exit_butt)  # Отрисовка кнопки
-                            draw_text('EXIT', font, white, screen, 50, 200)  # Отрисовка текста кнопки
-                            if exit_butt.collidepoint(mx, my) and click:
-                                main_menu(screen)
+                            draw_text('Нажмите ESC чтобы выйти', font, white, screen, res_width/2, res_height/2)
+                            draw_text('Нажмите SPACE чтобы продолжить', font, white, screen, res_width/2, (res_height/2+40))
 
 
 
