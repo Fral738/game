@@ -27,12 +27,13 @@ flags = screen.get_flags()
 
 pygame.display.set_caption("Dodge this")  # Задаем название окна
 font = pygame.font.SysFont(None, 40)  # Задаем размер шрифта
+player_color = (255, 0, 255)
+bonus_color = (255, 0, 0)
 
 class Block(pygame.sprite.Sprite):
     def __init__(self):
         super(Block, self).__init__()
         self.img = pygame.Surface((30, 30))
-        player_color = blue
         self.img.fill(player_color)
         self.rect = self.img.get_rect()
         self.centerx = self.rect.centerx
@@ -139,29 +140,31 @@ def main_menu(screen):  # Функция окна "Главное меню"
 
 
 def game():  # Функция окна "Играть"
-    global res_width, res_heigh
     screen.fill(black)
+    square = Block()
     draw_text('game', font, (255, 255, 255), screen, 20, 20)
     background_surf = pygame.image.load('background.png')
     background_rect = background_surf.get_rect(bottomright=(res_heigh, res_width))
     screen.blit(background_surf, background_rect)
+    screen.blit(square.img, square.rect)
     pygame.display.update()
+
     while True:  # Пока запущено
         for event in pygame.event.get():
             if event.type == KEYDOWN:  # Условие на нажатие любой кнопки
                 if event.key == K_ESCAPE:  # Условие на нажатие кнопки Escape
                     main_menu(screen)  # Возвращение в главное меню
-            # if event.type == MOUSEMOTION:
-        #         mouse_pos = pygame.mouse.get_pos()
-        #         if mouse_pos[0] <= 10:
-        #             pygame.mouse.set_pos(x_player - 10, mouse_pos[1])
-        #         elif mouse_pos[0] >= x_player - 10:
-        #             pygame.mouse.set_pos(0 + 10, mouse_pos[1])
-        #         elif mouse_pos[1] <= 10:
-        #             pygame.mouse.set_pos(mouse_pos[0], y_player - 10)
-        #         elif mouse_pos[1] >= y_player - 10:
-        #             pygame.mouse.set_pos(mouse_pos[0], 0 + 10)
-        #         square.set_pos(*mouse_pos)
+            if event.type == MOUSEMOTION:
+                mouse_pos = pygame.mouse.get_pos()
+                if mouse_pos[0] <= 10:
+                    pygame.mouse.set_pos(res_width - 10, mouse_pos[1])
+                elif mouse_pos[0] >= res_width - 10:
+                    pygame.mouse.set_pos(0 + 10, mouse_pos[1])
+                elif mouse_pos[1] <= 10:
+                    pygame.mouse.set_pos(mouse_pos[0], res_heigh - 10)
+                elif mouse_pos[1] >= res_heigh - 10:
+                    pygame.mouse.set_pos(mouse_pos[0], 0 + 10)
+                square.set_pos(*mouse_pos)
         #     # if event.type == pygame.MOUSEBUTTONDOWN:
         #     #     random_x = random.randint(0, x_player)
         #     #     random_y = random.randint(0, y_player)
