@@ -1,6 +1,12 @@
 import pygame
 from pygame.locals import *
 
+import math
+import os
+import random
+import sys
+import gettext
+
 heigh = [1920, 1600, 1280]
 width = [1080, 900, 720]
 res_heigh, res_width = heigh[2], width[2]
@@ -9,11 +15,6 @@ white = (255, 255, 255)
 blue = (0, 70, 225)
 green = (0, 255, 0)
 red = (255, 0, 0)
-right = "to the right"
-left = "to the left"
-up = "to the up"
-down = "to the down"
-stop = "stop"
 speed = 1
 
 # Инициализация pygame
@@ -25,14 +26,79 @@ main_Clock = pygame.time.Clock()  # Добавляем таймер, своег�
 screen = pygame.display.set_mode((res_heigh, res_width))  # Создаем окно с размерами 1920x1080
 flags = screen.get_flags()
 
-pygame.display.set_caption("Fral's game")  # Задаем название окна
+pygame.display.set_caption("Dodge this")  # Задаем название окна
 font = pygame.font.SysFont(None, 40)  # Задаем размер шрифта
 
 # координаты и радиус круга (человечка)
 x_player = 100
 y_player = 200
 r_player = 25
-motion = stop  # движение игрока
+player_color = (255, 0, 255)
+bonus_color = (255, 0, 0)
+
+
+class Block(pygame.sprite.Sprite):
+    def __init__(self):
+        super(Block, self).__init__()
+        self.img = pygame.Surface((30, 30))
+        self.img.fill(player_color)
+        self.rect = self.img.get_rect()
+        self.centerx = self.rect.centerx
+        self.centery = self.rect.centery
+
+    def set_pos(self, x, y):
+        'Positions the block center in x and y location'
+        self.rect.x = x - self.centerx
+        self.rect.y = y - self.centery
+
+    def collide(self, sprites):
+        for sprite in sprites:
+            if pygame.sprite.collide_rect(self, sprite):
+                return sprite
+
+
+class Bonus(pygame.sprite.Sprite):
+    def __init__(self, x, y):
+        super(Bonus, self).__init__()
+        self.image = pygame.Surface((15, 15))
+        self.image.fill(bonus_color)
+        self.rect = self.image.get_rect()
+        self.rect.x = x - self.rect.centerx
+        self.rect.y = y - self.rect.centery
+
+
+class Bullet(pygame.sprite.Sprite):
+
+    def __init__(self, xpos, ypos, hspeed, vspeed):
+        super(Bullet, self).__init__()
+        self.image = pygame.image.load('bullet.png')
+        self.rect = self.image.get_rect()
+        self.rect.x = xpos
+        self.rect.y = ypos
+        self.hspeed = hspeed
+        self.vspeed = vspeed
+
+        self.set_direction()
+
+    def update(self):
+        self.rect.x += self.hspeed
+        self.rect.y += self.vspeed
+        if self.collide():
+            self.kill()
+
+    def collide(self):
+        if self.rect.x < 0 - self.rect.height or self.rect.x > res_width:
+            return True
+        elif self.rect.y < 0 - self.rect.height or self.rect.y > res_heigh:
+            return True
+
+    def set_direction(self):
+        if self.hspeed > 0:
+            self.image = pygame.transform.rotate(self.image, 270)
+        elif self.hspeed < 0:
+            self.image = pygame.transform.rotate(self.image, 90)
+        elif self.vspeed > 0:
+            self.image = pygame.transform.rotate(self.image, 180)
 
 
 def draw_text(text, font, color, surface, x, y):  # Функция отрисовки текста
@@ -71,7 +137,7 @@ def main_menu(screen):  # Функция окна "Главное меню"
                     click = True  # инвертируем флаг
 
         if play_button.collidepoint(mx, my) and click:  # Условие на положение мыши над кнопкой и ее нажатие
-            game(x_player, y_player, motion)  # Перейти в окно "Играть"
+            game()  # Перейти в окно "Играть"
         if settings_button.collidepoint(mx, my) and click:  # Условие на положение мыши над кнопкой и ее нажатие
             options(screen)  # Перейти в окно "Настройки"
         if exit_button.collidepoint(mx, my) and click:  # Условие на положение мыши над кнопкой и ее нажатие
@@ -80,50 +146,12 @@ def main_menu(screen):  # Функция окна "Главное меню"
         pygame.display.update()  # Обновление экрана
 
 
-def game(x_player, y_player, motion):  # Функция окна "Играть"
+def game():  # Функция окна "Играть"
     global res_width, res_heigh
     while True:  # Пока запущено
         screen.fill(black)  # Заполнение экрана черным фоном
         draw_text('game', font, (255, 255, 255), screen, 20, 20)  # Отрисовка белого текста
-        pygame.draw.circle(screen, blue, (x_player, y_player), r_player)
 
-        for event in pygame.event.get():  # Считывание всех действий мыши и клавиатуры
-            if event.type == KEYDOWN:  # Условие на нажатие любой кнопки
-                if event.key == K_ESCAPE:  # Условие на нажатие кнопки Escape
-                    main_menu(screen)  # Возвращение в главное меню
-                elif event.key == pygame.K_LEFT:
-                    motion = left
-                elif event.key == pygame.K_RIGHT:
-                    motion = right
-                elif event.key == pygame.K_UP:
-                    motion = up
-                elif event.key == pygame.K_DOWN:
-                    motion = down
-            elif event.type == pygame.KEYUP:
-                if event.key in [pygame.K_LEFT, pygame.K_RIGHT, pygame.K_UP, pygame.K_DOWN]:
-                    motion = stop
-
-        if motion == left:
-            if (x_player - r_player) > 0:
-                x_player -= speed
-            else:
-                motion = stop
-        elif motion == right:
-            if (x_player + r_player) < res_heigh:
-                x_player += speed
-            else:
-                motion = stop
-        elif motion == up:
-            if (y_player - r_player) > 0:
-                y_player -= speed
-            else:
-                motion = stop
-        elif motion == down:
-            if (y_player + r_player) < res_width:
-                y_player += speed
-            else:
-                motion = stop
-        pygame.display.update()  # Обновление экрана
 
 
 def options(screen):  # Функция окна "Настройки"
