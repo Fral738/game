@@ -6,9 +6,9 @@ import os
 import random
 import sys
 
-heigh = [1920, 1600, 1280]
-width = [1080, 900, 720]
-res_heigh, res_width = heigh[2], width[2]
+width = [1920, 1600, 1280]
+heigh = [1080, 900, 720]
+res_width, res_height = width[2], heigh[2]
 black = (0, 0, 0)
 white = (255, 255, 255)
 blue = (0, 70, 225)
@@ -19,7 +19,7 @@ speed = 1
 # Инициализация pygame
 pygame.init()
 main_Clock = pygame.time.Clock()  # Добавляем таймер, своего рода FPS - количество кадров в секунду
-screen = pygame.display.set_mode((res_heigh, res_width))  # Создаем окно с размерами 1920x1080
+screen = pygame.display.set_mode((res_width, res_height))  # Создаем окно с размерами 1920x1080
 flags = screen.get_flags()
 
 pygame.display.set_caption("Dodge this")  # Задаем название окна
@@ -79,7 +79,7 @@ class Bullet(pygame.sprite.Sprite):
     def collide(self):
         if self.rect.x < 0 - self.rect.height or self.rect.x > res_width:
             return True
-        elif self.rect.y < 0 - self.rect.height or self.rect.y > res_heigh:
+        elif self.rect.y < 0 - self.rect.height or self.rect.y > res_height:
             return True
 
     def set_direction(self):
@@ -97,6 +97,10 @@ def draw_text(text, font, color, surface, x, y):  # Функция отрисо�
     textrect.topleft = (x, y)
     surface.blit(texobj, textrect)
 
+def draw_repeating_background(background_img):
+    new_image = pygame.transform.scale(background_img, (res_width, res_height))
+    background_rect = new_image.get_rect(bottomright=(res_width, res_height))
+    screen.blit(background_img, background_rect)
 
 def main_menu(screen):  # Функция окна "Главное меню"
     pygame.mixer_music.load('main menu melody.mp3')
@@ -140,13 +144,18 @@ def main_menu(screen):  # Функция окна "Главное меню"
 
 
 def game():  # Функция окна "Играть"
+    paused = False
+    click = False
+    mx, my = pygame.mouse.get_pos()
     screen.fill(black)
     square = Block()
     draw_text('game', font, (255, 255, 255), screen, 20, 20)
     background_surf = pygame.image.load('background.png')
-    background_rect = background_surf.get_rect(bottomright=(res_heigh, res_width))
+
+    background_rect = background_surf.get_rect(bottomright=(res_height, res_width))
     screen.blit(background_surf, background_rect)
     screen.blit(square.img, square.rect)
+
     pygame.display.update()
     shuffle()
     while True:  # Пока запущено
@@ -162,8 +171,8 @@ def game():  # Функция окна "Играть"
                 elif mouse_pos[0] >= res_width - 10:
                     pygame.mouse.set_pos(0 + 10, mouse_pos[1])
                 elif mouse_pos[1] <= 10:
-                    pygame.mouse.set_pos(mouse_pos[0], res_heigh - 10)
-                elif mouse_pos[1] >= res_heigh - 10:
+                    pygame.mouse.set_pos(mouse_pos[0], res_height - 10)
+                elif mouse_pos[1] >= res_height - 10:
                     pygame.mouse.set_pos(mouse_pos[0], 0 + 10)
                 square.set_pos(*mouse_pos)
         #     # if event.type == pygame.MOUSEBUTTONDOWN:
@@ -171,11 +180,32 @@ def game():  # Функция окна "Играть"
         #     #     random_y = random.randint(0, y_player)
         #     #     square.set_pos(random_x, random_y)
         #     #     pygame.mouse.set_pos([random_x, random_y])
+        pygame.display.update()
+        if not paused:
+            draw_repeating_background(background_surf)
+            for event in pygame.event.get():
+                if event.type == pygame.KEYDOWN:
+                    if event.type == MOUSEBUTTONDOWN:  # Условие на нажатие левой кнопки мыши
+                        if event.button == 1:  # Если нажата
+                            click = True  # инвертируем флаг
+                    if event.key == pygame.K_SPACE:
+                        paused = not paused
+                        if paused:
+                            transp_surf = pygame.Surface((res_width, res_height))
+                            transp_surf.set_alpha(150)
+                            screen.blit(transp_surf, transp_surf.get_rect())
+                            pygame.mouse.set_visible(True)
+                            exit_butt = pygame.Rect(50, 200, 200, 50)  # Параметры прямоугольника для кнопки
+                            pygame.draw.rect(screen, red, exit_butt)  # Отрисовка кнопки
+                            draw_text('EXIT', font, white, screen, 50, 200)  # Отрисовка текста кнопки
+                            if exit_butt.collidepoint(mx, my) and click:
+                                main_menu(screen)
+
 
 
 
 def options(screen):  # Функция окна "Настройки"
-    global res_width, res_heigh, flags
+    global res_width, res_height, flags
     screen.fill(black)  # Пока запущено
     while True:
         mx, my = pygame.mouse.get_pos()  # переменные для хранения позиции мыши
@@ -206,11 +236,11 @@ def options(screen):  # Функция окна "Настройки"
         if full_screen.collidepoint(mx, my) and click:
             if flags & FULLSCREEN == False:
                 flags |= FULLSCREEN
-                pygame.display.set_mode((heigh[0], width[0]), flags)
-                res_heigh, res_width = heigh[0], width[0]
+                pygame.display.set_mode((width[0], heigh[0]), flags)
+                res_width, res_height = width[0], heigh[0]
             else:
                 flags ^= FULLSCREEN
-                pygame.display.set_mode((res_heigh, res_width), flags)
+                pygame.display.set_mode((res_width, res_height), flags)
         if resolution.collidepoint(mx, my) and click:
             screen.fill(black)  # Пока запущено
             pygame.draw.rect(screen, red, full_hd)  # Отрисовка кнопки
@@ -223,16 +253,16 @@ def options(screen):  # Функция окна "Настройки"
         if back.collidepoint(mx, my) and click:
             main_menu(screen)
         if full_hd.collidepoint(mx, my) and click:
-            screen = pygame.display.set_mode((heigh[0], width[0]))
-            res_heigh = heigh[0]
+            screen = pygame.display.set_mode((width[0], heigh[0]))
+            res_height = heigh[0]
             res_width = width[0]
         if wxga.collidepoint(mx, my) and click:
-            screen = pygame.display.set_mode((heigh[1], width[1]))
-            res_heigh = heigh[1]
+            screen = pygame.display.set_mode((width[1], heigh[1]))
+            res_height = heigh[1]
             res_width = width[1]
         if hd.collidepoint(mx, my) and click:
-            screen = pygame.display.set_mode((heigh[2], width[2]))
-            res_heigh = heigh[2]
+            screen = pygame.display.set_mode((width[2], heigh[2]))
+            res_height = heigh[2]
             res_width = width[2]
         pygame.display.update()  # Обновление экрана
 
