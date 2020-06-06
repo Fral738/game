@@ -148,39 +148,25 @@ def game():  # Функция окна "Играть"
     click = False
     mx, my = pygame.mouse.get_pos()
     screen.fill(black)
-    square = Block()
     draw_text('game', font, (255, 255, 255), screen, 20, 20)
+    square = Block()
     background_surf = pygame.image.load('background.png')
-
     background_rect = background_surf.get_rect(bottomright=(res_height, res_width))
     screen.blit(background_surf, background_rect)
     screen.blit(square.img, square.rect)
-
     pygame.display.update()
     shuffle()
     while True:  # Пока запущено
+        mx, my = pygame.mouse.get_pos()
+        print(mx, my)
         for event in pygame.event.get():
             if event.type == KEYDOWN:  # Условие на нажатие любой кнопки
                 if event.key == K_ESCAPE:
                     pygame.mixer_music.stop()# Условие на нажатие кнопки Escape
                     main_menu(screen)  # Возвращение в главное меню
-            if event.type == MOUSEMOTION:
-                mouse_pos = pygame.mouse.get_pos()
-                if mouse_pos[0] <= 10:
-                    pygame.mouse.set_pos(res_width - 10, mouse_pos[1])
-                elif mouse_pos[0] >= res_width - 10:
-                    pygame.mouse.set_pos(0 + 10, mouse_pos[1])
-                elif mouse_pos[1] <= 10:
-                    pygame.mouse.set_pos(mouse_pos[0], res_height - 10)
-                elif mouse_pos[1] >= res_height - 10:
-                    pygame.mouse.set_pos(mouse_pos[0], 0 + 10)
-                square.set_pos(*mouse_pos)
-        #     # if event.type == pygame.MOUSEBUTTONDOWN:
-        #     #     random_x = random.randint(0, x_player)
-        #     #     random_y = random.randint(0, y_player)
-        #     #     square.set_pos(random_x, random_y)
-        #     #     pygame.mouse.set_pos([random_x, random_y])
-        pygame.display.update()
+        screen.blit(square.img, (mx-15, my-15))
+        pygame.time.Clock().tick(60)
+        pygame.display.flip
         if not paused:
             draw_repeating_background(background_surf)
             for event in pygame.event.get():
@@ -200,7 +186,6 @@ def game():  # Функция окна "Играть"
                             draw_text('EXIT', font, white, screen, 50, 200)  # Отрисовка текста кнопки
                             if exit_butt.collidepoint(mx, my) and click:
                                 main_menu(screen)
-
 
 
 
