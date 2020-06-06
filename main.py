@@ -5,7 +5,6 @@ import math
 import os
 import random
 import sys
-import gettext
 
 heigh = [1920, 1600, 1280]
 width = [1080, 900, 720]
@@ -148,10 +147,14 @@ def main_menu(screen):  # Функция окна "Главное меню"
 
 def game():  # Функция окна "Играть"
     global res_width, res_heigh
+    screen.fill(black)
+    draw_text('game', font, (255, 255, 255), screen, 20, 20)
+    background_surf = pygame.image.load('background.png')
+    background_rect = background_surf.get_rect(bottomright=(res_heigh, res_width))
+    screen.blit(background_surf, background_rect)
+    pygame.display.update()
     while True:  # Пока запущено
-        screen.fill(black)  # Заполнение экрана черным фоном
-        draw_text('game', font, (255, 255, 255), screen, 20, 20)  # Отрисовка белого текста
-
+        pass
 
 
 def options(screen):  # Функция окна "Настройки"
