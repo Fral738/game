@@ -18,9 +18,6 @@ speed = 1
 
 # Инициализация pygame
 pygame.init()
-pygame.mixer_music.load('music.mp3')
-pygame.mixer_music.play()
-pygame.mixer_music.set_volume(0.1)
 main_Clock = pygame.time.Clock()  # Добавляем таймер, своего рода FPS - количество кадров в секунду
 screen = pygame.display.set_mode((res_heigh, res_width))  # Создаем окно с размерами 1920x1080
 flags = screen.get_flags()
@@ -102,6 +99,8 @@ def draw_text(text, font, color, surface, x, y):  # Функция отрисо�
 
 
 def main_menu(screen):  # Функция окна "Главное меню"
+    pygame.mixer_music.load('main menu melody.mp3')
+    pygame.mixer_music.play()
     while True:
         screen.fill(black)  # Заполнение экрана черным фоном
         draw_text('main menu', font, white, screen, 20, 20)  # Отрисовка белого текста
@@ -131,6 +130,7 @@ def main_menu(screen):  # Функция окна "Главное меню"
 
         if play_button.collidepoint(mx, my) and click:  # Условие на положение мыши над кнопкой и ее нажатие
             game()  # Перейти в окно "Играть"
+            pygame.mixer_music.stop()
         if settings_button.collidepoint(mx, my) and click:  # Условие на положение мыши над кнопкой и ее нажатие
             options(screen)  # Перейти в окно "Настройки"
         if exit_button.collidepoint(mx, my) and click:  # Условие на положение мыши над кнопкой и ее нажатие
@@ -148,11 +148,12 @@ def game():  # Функция окна "Играть"
     screen.blit(background_surf, background_rect)
     screen.blit(square.img, square.rect)
     pygame.display.update()
-
+    shuffle()
     while True:  # Пока запущено
         for event in pygame.event.get():
             if event.type == KEYDOWN:  # Условие на нажатие любой кнопки
-                if event.key == K_ESCAPE:  # Условие на нажатие кнопки Escape
+                if event.key == K_ESCAPE:
+                    pygame.mixer_music.stop()# Условие на нажатие кнопки Escape
                     main_menu(screen)  # Возвращение в главное меню
             if event.type == MOUSEMOTION:
                 mouse_pos = pygame.mouse.get_pos()
@@ -234,6 +235,22 @@ def options(screen):  # Функция окна "Настройки"
             res_heigh = heigh[2]
             res_width = width[2]
         pygame.display.update()  # Обновление экрана
+
+
+songs = ['song1.mp3', 'song2.mp3', 'song3.mp3']
+song_end = pygame.USEREVENT + 1
+current_song = None
+pygame.mixer_music.set_volume(0.05)
+
+
+def shuffle():
+    global current_song, song_end
+    next_song = random.choice(songs)
+    while next_song == current_song:
+        next_song = random.choice(songs)
+    current_song = next_song
+    pygame.mixer_music.load(next_song)
+    pygame.mixer_music.play()
 
 
 main_menu(screen)  # Вызов функции главного меню
