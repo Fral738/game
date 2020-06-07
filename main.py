@@ -91,6 +91,19 @@ class Bullet(pygame.sprite.Sprite):
         elif self.vspeed > 0:
             self.image = pygame.transform.rotate(self.image, 180)
 
+
+def random_bullet(speed):
+    random_or = random.randint(1, 4)
+    if random_or == 1:  # Up -> Down
+        return Bullet(random.randint(0, res_width), 0, 0, speed)
+    elif random_or == 2:  # Right -> Left
+        return Bullet(res_width, random.randint(0, res_height), -speed, 0)
+    elif random_or == 3:  # Down -> Up
+        return Bullet(random.randint(0, res_width), res_height, 0, -speed)
+    elif random_or == 4:  # Left -> Right
+        return Bullet(0, random.randint(0, res_height), speed, 0)
+
+
 def get_config_dir():
     confdir = os.path.join(os.path.expanduser("~"), '.config')
     game_confdir = os.path.join(confdir, "best_game")
@@ -180,6 +193,12 @@ def game():  # Функция окна "Играть"
     start_time = time.time()
     mx, my = pygame.mouse.get_pos()
     square = Block()
+    bullets = pygame.sprite.Group()
+    bonuses = pygame.sprite.Group()
+    min_bullet_speed = 1
+    max_bullet_speed = 1
+    bullets_per_gust = 1
+    odds = 12
     background_surf = pygame.image.load('background.png')
     draw_repeating_background(background_surf)
     screen.blit(square.img, square.rect)
@@ -199,6 +218,7 @@ def game():  # Функция окна "Играть"
         pygame.time.Clock().tick(60)
         pygame.display.update()
         if not paused:
+            pygame.mixer_music.unpause()
             time_pause = 0
             time_score = time.time() - start_time
             mx, my = pygame.mouse.get_pos()
@@ -208,11 +228,57 @@ def game():  # Функция окна "Играть"
             draw_text('Record: {}'.format(score.high_score), font, white, screen, 70, 50)
             draw_text('Time: {}'.format(round(time_score, 2)), font, white, screen, 100, 80)
             screen.blit(square.img, (mx - 15, my - 15))
+            if time_score >= 15:
+                odds = 11
+                max_bullet_speed = 2
+            elif time_score >= 30:
+                odds = 10
+                max_bullet_speed = 3
+            elif time_score >= 45:
+                odds = 9
+                max_bullet_speed = 4
+            elif time_score >= 60:
+                odds = 8
+                max_bullet_speed = 5
+            elif time_score >= 75:
+                max_bullet_speed = 8
+            elif time_score >= 90:
+                min_bullet_speed = 2
+            elif time_score >= 105:
+                bullets_per_gust = 2
+                max_bullet_speed = 10
+            elif time_score >= 120:
+                max_bullet_speed = 20
+            elif time_score >= 135:
+                bullets_per_gust = 3
+                min_bullet_speed = 3
+                max_bullet_speed = 15
+            elif time_score >= 150:
+                bullets_per_gust = 3000
+                max_bullet_speed = 80
+
+            if random.randint(1, odds) == 1:
+                if random.randint(1, odds * 10) == 1:
+                    bonus = Bonus(random.randint(30, res_width - 30),
+                                  random.randint(30, res_height - 30))
+                    bonuses.add(bonus)
+                for i in range(bullets_per_gust):
+                    bullets.add(random_bullet(random.randint(min_bullet_speed,
+                                                             max_bullet_speed)))
+                    score.points += 1
+            bullets.update()
+            bonuses.update()
+            bullets.draw(screen)
+            bonuses.draw(screen)
+            bonus = square.collide(bonuses)
+
+
             for event in pygame.event.get():
                 if event.type == pygame.KEYDOWN:
                     if event.key == pygame.K_SPACE:
                         paused = True
                         if paused:
+                            pygame.mixer_music.pause()
                             transp_surf = pygame.Surface((res_width, res_height))
                             transp_surf.set_alpha(150)
                             screen.blit(transp_surf, transp_surf.get_rect())
