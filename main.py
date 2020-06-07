@@ -1,10 +1,7 @@
 import pygame
 from pygame.locals import *
-
-import math
 import os
 import random
-import sys
 import time
 
 width = [1920, 1600, 1280]
@@ -38,7 +35,7 @@ class Block(pygame.sprite.Sprite):
         self.centery = self.rect.centery
 
     def set_pos(self, x, y):
-        'Positions the block center in x and y location'
+        'Ставит блок в центре координат x и y'
         self.rect.x = x - self.centerx
         self.rect.y = y - self.centery
 
@@ -145,23 +142,45 @@ def draw_repeating_background(background_img):
     screen.blit(background_img, background_rect)
 
 def main_menu(screen):  # Функция окна "Главное меню"
+    infoObject = pygame.display.Info()
+    print(infoObject)
     pygame.mixer_music.load('main menu melody.mp3')
     pygame.mixer_music.play()
+
+    menu_image = pygame.image.load("Assets/menu/Menu Button.png")
+    menu_image = pygame.transform.scale(menu_image, (300, 100))  # that's just half our menu image
+    menu_rect = menu_image.get_rect()
+
+    play_image = pygame.image.load("Assets/menu/Play Button.png")
+    play_image = pygame.transform.scale(play_image, (200, 67))  # same as menu image, but divided by 3 instead of 2
+    play_button = play_image.get_rect()  # this rectangular size will be uniform for the rest of the buttons
+
+    settings_image = pygame.image.load("Assets/menu/Settings Button.png")
+    settings_image = pygame.transform.scale(settings_image, (200, 67))
+    settings_button = settings_image.get_rect()
+
+    exit_image = pygame.image.load("Assets/menu/Exit Button.png")
+    exit_image = pygame.transform.scale(exit_image, (200, 67))
+    exit_button = exit_image.get_rect()
+
     while True:
         screen.fill(black)  # Заполнение экрана черным фоном
-        draw_text('main menu', font, white, screen, res_width / 2, 20)  # Отрисовка белого текста
+        screen.blit(menu_image, ((infoObject.current_w / 2) - menu_rect.centerx,
+                                 (infoObject.current_h / 10) - menu_rect.centery))
 
         mx, my = pygame.mouse.get_pos()  # переменные для хранения позиции мыши
 
-        play_button = pygame.Rect(50, 100, 200, 50)  # Параметры прямоугольника для кнопки
-        settings_button = pygame.Rect(50, 200, 200, 50)  # Параметры прямоугольника для кнопки
-        exit_button = pygame.Rect(50, 300, 200, 50)
-        pygame.draw.rect(screen, red, play_button)  # Отрисовка кнопки
-        draw_text('Game', font, white, screen, 50, 100)  # Отрисовка текста кнопки
-        pygame.draw.rect(screen, red, settings_button)  # Отрисовка кнопки
-        draw_text('Options', font, white, screen, 50, 200)  # Отрисовка текста кнопки
-        pygame.draw.rect(screen, red, exit_button)  # Отрисовка кнопки
-        draw_text('Exit', font, white, screen, 50, 300)  # Отрисовка текста кнопки
+        play_button.move_ip((infoObject.current_w / 2) - play_button.centerx,
+                            (infoObject.current_h / 4) - play_button.centery)
+        screen.blit(play_image, play_button)
+
+        settings_button.move_ip((infoObject.current_w / 2) - settings_button.centerx,
+                                (infoObject.current_h / 2.8 - settings_button.centery))
+        screen.blit(settings_image, settings_button)
+
+        exit_button.move_ip((infoObject.current_w / 2) - exit_button.centerx,
+                            (infoObject.current_h / 2.15 - exit_button.centery))
+        screen.blit(exit_image, exit_button)
 
         click = False  # Флаг нажатия левой кнопки мыши
         for event in pygame.event.get():  # Считывание всех действий мыши и клавиатуры
@@ -296,7 +315,7 @@ def options(screen):  # Функция окна "Настройки"
     while True:
         mx, my = pygame.mouse.get_pos()  # переменные для хранения позиции мыши
         click = False
-        draw_text('options', font, (255, 255, 255), screen, 20, 20)  # Отрисовка белого текста
+        draw_text('Options', font, (255, 255, 255), screen, res_width / 2, 20)  # Отрисовка белого текста
         resolution = pygame.Rect(100, 100, 200, 50)  # Параметры прямоугольника для кнопки
         full_screen = pygame.Rect(100, 200, 200, 50)  # Параметры прямоугольника для кнопки
         full_hd = pygame.Rect(350, 100, 200, 50)  # Параметры прямоугольника для кнопки
