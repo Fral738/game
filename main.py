@@ -5,6 +5,7 @@ import math
 import os
 import random
 import sys
+import time
 
 width = [1920, 1600, 1280]
 heigh = [1080, 900, 720]
@@ -90,6 +91,34 @@ class Bullet(pygame.sprite.Sprite):
         elif self.vspeed > 0:
             self.image = pygame.transform.rotate(self.image, 180)
 
+def get_config_dir():
+    confdir = os.path.join(os.path.expanduser("~"), '.config')
+    game_confdir = os.path.join(confdir, "best_game")
+    try:
+        os.makedirs(game_confdir)
+    except OSError as e:
+        pass
+    return game_confdir
+
+class Score:
+    # Highest score file
+    def __init__(self):
+        self.HIGHEST_SCORE_PATH = os.path.join(get_config_dir(), 'highest_score')
+        if not os.path.exists(self.HIGHEST_SCORE_PATH):
+            with open(self.HIGHEST_SCORE_PATH, 'w') as highest_score_file:
+                highest_score_file.write('0')
+        # Load highest score
+        self.high_score = self.highest_score = self.load_highest_score()
+        self.points = 0
+
+    def load_highest_score(self):
+        with open(self.HIGHEST_SCORE_PATH, 'r') as highest_score_file:
+            highest_score = int(highest_score_file.readlines()[0])
+        return highest_score
+
+    def save_highest_score(self):
+        with open(self.HIGHEST_SCORE_PATH, 'w') as highest_score_file:
+            highest_score_file.write(str(self.high_score))
 
 def draw_text(text, font, color, screen, x, y):  # Функция отрисовки текста
     texobj = font.render(text, 1, color)
@@ -144,8 +173,11 @@ def main_menu(screen):  # Функция окна "Главное меню"
 
 
 def game():  # Функция окна "Играть"
+    global score
+    time_score, time_pause = 0, 0
     paused = False
-    click = False
+    score = Score()
+    start_time = time.time()
     mx, my = pygame.mouse.get_pos()
     square = Block()
     background_surf = pygame.image.load('background.png')
@@ -157,18 +189,24 @@ def game():  # Функция окна "Играть"
         pause_mx, pause_my = pygame.mouse.get_pos()
         for event in pygame.event.get():
             if event.type == KEYDOWN:  # Условие на нажатие любой кнопки
-                if event.key == K_ESCAPE:
-                    pygame.mixer_music.stop()# Условие на нажатие кнопки Escape
+                if event.key == K_s:
+                    pygame.mixer_music.stop()# Условие на нажатие кнопки S
                 if (event.key == pygame.K_SPACE) and (mx-20 <= pause_mx <= mx+20) and (my-20 <= pause_my <= my+20):
                     paused = False
+                    start_time = start_time + time_pause
                 if event.key == K_ESCAPE:  # Условие на нажатие кнопки Escapezz
                     main_menu(screen)  # Возвращение в главное меню
         pygame.time.Clock().tick(60)
         pygame.display.update()
         if not paused:
+            time_pause = 0
+            time_score = time.time() - start_time
             mx, my = pygame.mouse.get_pos()
             pygame.mouse.set_visible(False)
             draw_repeating_background(background_surf)
+            draw_text('{}  points'.format(score.points), font, white, screen, 70, 20)
+            draw_text('Record: {}'.format(score.high_score), font, white, screen, 70, 50)
+            draw_text('Time: {}'.format(round(time_score, 2)), font, white, screen, 100, 80)
             screen.blit(square.img, (mx - 15, my - 15))
             for event in pygame.event.get():
                 if event.type == pygame.KEYDOWN:
@@ -180,7 +218,9 @@ def game():  # Функция окна "Играть"
                             screen.blit(transp_surf, transp_surf.get_rect())
                             pygame.mouse.set_visible(True)
                             draw_text('Нажмите ESC чтобы выйти', font, white, screen, res_width/2, res_height/2)
-                            draw_text('Нажмите SPACE чтобы продолжить', font, white, screen, res_width/2, (res_height/2+40))
+                            draw_text('Нажмите SPACE чтобы продолжить', font, white, screen, res_width/2,
+                                      (res_height/2+40))
+        else: time_pause = time.time() - start_time - time_score
 
 
 
