@@ -209,7 +209,7 @@ def game():  # Функция окна "Играть"
     time_score, time_pause = 0, 0
     paused = False
     score = Score()
-    start_time = time.time()
+    start_time = pygame.time.get_ticks()
     mx, my = pygame.mouse.get_pos()
     square = Block()
     bullets = pygame.sprite.Group()
@@ -239,13 +239,15 @@ def game():  # Функция окна "Играть"
         if not paused:
             pygame.mixer_music.unpause()
             time_pause = 0
-            time_score = time.time() - start_time
+            time_score = pygame.time.get_ticks() - start_time
+            seconds = int(time_score / 1000 % 60)
+            minutes = int(time_score / 60000 % 24)
             mx, my = pygame.mouse.get_pos()
             pygame.mouse.set_visible(False)
             draw_repeating_background(background_surf)
-            draw_text('{}  points'.format(score.points), font, white, screen, 70, 20)
-            draw_text('Record: {}'.format(score.high_score), font, white, screen, 70, 50)
-            draw_text('Time: {}'.format(round(time_score, 2)), font, white, screen, 100, 80)
+            draw_text('Кол-во очков: {}'.format(score.points), font, white, screen, 110, 20)
+            draw_text('Рекорд: {}'.format(score.high_score), font, white, screen, 70, 50)
+            draw_text("Время: {0:02}:{1:02}".format(minutes, seconds), font, white, screen, 90, 80)
             screen.blit(square.img, (mx - 15, my - 15))
             if time_score >= 15:
                 odds = 11
@@ -305,7 +307,8 @@ def game():  # Функция окна "Играть"
                             draw_text('Нажмите ESC чтобы выйти', font, white, screen, res_width/2, res_height/2)
                             draw_text('Нажмите SPACE чтобы продолжить', font, white, screen, res_width/2,
                                       (res_height/2+40))
-        else: time_pause = time.time() - start_time - time_score
+        else:
+            time_pause = pygame.time.get_ticks() - start_time - time_score
 
 
 
