@@ -2,7 +2,6 @@ import pygame
 from pygame.locals import *
 import os
 import random
-import time
 
 width = [1920, 1600, 1280]
 heigh = [1080, 900, 720]
@@ -15,6 +14,7 @@ green = (0, 255, 0)
 red = (255, 0, 0)
 speed = 1
 
+pygame.mixer.init(frequency=44100, size=-16, channels=2, buffer=4096)
 songs = ['song1.mp3', 'song2.mp3', 'song3.mp3']
 song_end = pygame.USEREVENT + 1
 current_song = None
