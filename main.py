@@ -7,12 +7,19 @@ import time
 width = [1920, 1600, 1280]
 heigh = [1080, 900, 720]
 res_width, res_height = width[2], heigh[2]
+
 black = (0, 0, 0)
 white = (255, 255, 255)
 blue = (0, 70, 225)
 green = (0, 255, 0)
 red = (255, 0, 0)
 speed = 1
+
+songs = ['song1.mp3', 'song2.mp3', 'song3.mp3']
+song_end = pygame.USEREVENT + 1
+current_song = None
+pygame.mixer_music.set_endevent(song_end)
+pygame.mixer_music.set_volume(0.05)
 
 # Инициализация pygame
 pygame.init()
@@ -24,6 +31,7 @@ pygame.display.set_caption("Dodge this")  # Задаем название окн
 font = pygame.font.SysFont(None, 40)  # Задаем размер шрифта
 player_color = (255, 0, 255)
 bonus_color = (255, 0, 0)
+
 
 class Block(pygame.sprite.Sprite):
     def __init__(self):
@@ -56,7 +64,6 @@ class Bonus(pygame.sprite.Sprite):
 
 
 class Bullet(pygame.sprite.Sprite):
-
     def __init__(self, xpos, ypos, hspeed, vspeed):
         super(Bullet, self).__init__()
         self.image = pygame.image.load('bullet.png')
@@ -110,6 +117,7 @@ def get_config_dir():
         pass
     return game_confdir
 
+
 class Score:
     # Highest score file
     def __init__(self):
@@ -130,30 +138,39 @@ class Score:
         with open(self.HIGHEST_SCORE_PATH, 'w') as highest_score_file:
             highest_score_file.write(str(self.high_score))
 
+
 def draw_text(text, font, color, screen, x, y):  # Функция отрисовки текста
     texobj = font.render(text, 1, color)
     textrect = texobj.get_rect()
     textrect.center = (x, y)
     screen.blit(texobj, textrect)
 
+
 def draw_repeating_background(background_img):
     new_image = pygame.transform.scale(background_img, (res_width, res_height))
     background_rect = new_image.get_rect(bottomright=(res_width, res_height))
     screen.blit(background_img, background_rect)
+
 
 def game_over_screen():
     transp_surf = pygame.Surface((res_width, res_height))
     transp_surf.set_alpha(200)
     screen.blit(transp_surf, transp_surf.get_rect())
     pygame.mouse.set_visible(True)
-    draw_text('Вы проиграли', font, white, screen, res_width / 2, res_height / 2 - 40)
-    draw_text('Нажмите ESC чтобы выйти', font, white, screen, res_width / 2, res_height / 2)
+    draw_text('Вы проиграли', font, white, screen, res_width / 2, res_height / 2 - 80)
+    draw_text('Нажмите на ПРОБЕЛ для рестарта ', font, white, screen, res_width / 2, res_height / 2 - 40)
+    draw_text('Нажмите ESC, чтобы выйти', font, white, screen, res_width / 2, res_height / 2)
     pygame.display.update()
+    pygame.mixer_music.load('death song.mp3')
+    pygame.mixer_music.play()
     while True:
         for event in pygame.event.get():
             if event.type == pygame.KEYDOWN:
                 if event.key == K_ESCAPE:
                     main_menu(screen)
+                elif event.key == K_SPACE:
+                    game()
+
 
 def main_menu(screen):  # Функция окна "Главное меню"
     infoObject = pygame.display.Info()
@@ -295,12 +312,12 @@ def game():  # Функция окна "Играть"
             bullets.draw(screen)
             bonuses.draw(screen)
             bonus = square.collide(bonuses)
-            if square.collide(bullets): #Тут еще надо добавить Очки и время чтоб сохранялись.
-                pygame.mixer_music.stop()
-                game_over_screen()
-            if bonus:
-                score.points += 10
-                bonus.kill()
+            # if square.collide(bullets): #Тут еще надо добавить Очки и время чтоб сохранялись.
+            #     pygame.mixer_music.stop()
+            #     game_over_screen()
+            # if bonus:
+            #     score.points += 10
+            #     bonus.kill()
             square.set_pos(mx-15, my-15)
             screen.blit(square.img, square.rect)
             for event in pygame.event.get():
@@ -313,9 +330,11 @@ def game():  # Функция окна "Играть"
                             transp_surf.set_alpha(150)
                             screen.blit(transp_surf, transp_surf.get_rect())
                             pygame.mouse.set_visible(True)
-                            draw_text('Нажмите ESC чтобы выйти', font, white, screen, res_width/2, res_height/2)
-                            draw_text('Нажмите SPACE чтобы продолжить', font, white, screen, res_width/2,
-                                      (res_height/2+40))
+                            draw_text('Нажмите ESC чтобы выйти', font, white, screen, res_width/2, res_height/2+40)
+                            draw_text('Нажмите ПРОБЕЛ чтобы продолжить', font, white, screen, res_width/2,
+                                      (res_height/2))
+                if event.type == song_end:
+                     shuffle()
         else:
             time_pause = pygame.time.get_ticks() - start_time - time_score
             for event in pygame.event.get():
@@ -330,14 +349,13 @@ def game():  # Функция окна "Играть"
                         main_menu(screen)  # Возвращение в главное меню
 
 
-
 def options(screen):  # Функция окна "Настройки"
     global res_width, res_height, flags
     screen.fill(black)  # Пока запущено
     while True:
         mx, my = pygame.mouse.get_pos()  # переменные для хранения позиции мыши
         click = False
-        draw_text('Options', font, (255, 255, 255), screen, res_width / 2, 20)  # Отрисовка белого текста
+        draw_text('Опции', font, (255, 255, 255), screen, res_width / 2, 20)  # Отрисовка белого текста
         resolution = pygame.Rect(100, 100, 200, 50)  # Параметры прямоугольника для кнопки
         full_screen = pygame.Rect(100, 200, 200, 50)  # Параметры прямоугольника для кнопки
         full_hd = pygame.Rect(350, 100, 200, 50)  # Параметры прямоугольника для кнопки
@@ -346,11 +364,11 @@ def options(screen):  # Функция окна "Настройки"
         back = pygame.Rect(100, 300, 200, 50)  # Параметры прямоугольника для кнопки
 
         pygame.draw.rect(screen, red, resolution)  # Отрисовка кнопки
-        draw_text('Resolution', font, white, screen, 100, 100)  # Отрисовка текста кнопки
+        draw_text('Разрешение экрана', font, white, screen, 100, 100)  # Отрисовка текста кнопки
         pygame.draw.rect(screen, red, full_screen)  # Отрисовка кнопки
-        draw_text('Full screen', font, white, screen, 100, 200)  # Отрисовка текста кнопки
+        draw_text('Полноэкранный режим', font, white, screen, 100, 200)  # Отрисовка текста кнопки
         pygame.draw.rect(screen, red, back)
-        draw_text('Back', font, white, screen, 100, 300)
+        draw_text('Назад', font, white, screen, 100, 300)
 
         for event in pygame.event.get():  # Считывание всех действий мыши и клавиатуры
             if event.type == KEYDOWN:  # Условие на нажатие любой кнопки
@@ -392,12 +410,6 @@ def options(screen):  # Функция окна "Настройки"
             res_height = heigh[2]
             res_width = width[2]
         pygame.display.update()  # Обновление экрана
-
-
-songs = ['song1.mp3', 'song2.mp3', 'song3.mp3']
-song_end = pygame.USEREVENT + 1
-current_song = None
-pygame.mixer_music.set_volume(0.05)
 
 
 def shuffle():
