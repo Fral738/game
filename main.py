@@ -49,7 +49,7 @@ class Bonus(pygame.sprite.Sprite):
     def __init__(self, x, y):
         super(Bonus, self).__init__()
         self.image = pygame.Surface((15, 15))
-        # self.image.fill(bonus_color)
+        self.image.fill(bonus_color)
         self.rect = self.image.get_rect()
         self.rect.x = x - self.rect.centerx
         self.rect.y = y - self.rect.centery
@@ -141,6 +141,20 @@ def draw_repeating_background(background_img):
     background_rect = new_image.get_rect(bottomright=(res_width, res_height))
     screen.blit(background_img, background_rect)
 
+def game_over_screen():
+    transp_surf = pygame.Surface((res_width, res_height))
+    transp_surf.set_alpha(200)
+    screen.blit(transp_surf, transp_surf.get_rect())
+    pygame.mouse.set_visible(True)
+    draw_text('Вы проиграли', font, white, screen, res_width / 2, res_height / 2 - 40)
+    draw_text('Нажмите ESC чтобы выйти', font, white, screen, res_width / 2, res_height / 2)
+    pygame.display.update()
+    while True:
+        for event in pygame.event.get():
+            if event.type == pygame.KEYDOWN:
+                if event.key == K_ESCAPE:
+                    main_menu(screen)
+
 def main_menu(screen):  # Функция окна "Главное меню"
     infoObject = pygame.display.Info()
     print(infoObject)
@@ -220,25 +234,15 @@ def game():  # Функция окна "Играть"
     odds = 12
     background_surf = pygame.image.load('background.png')
     draw_repeating_background(background_surf)
-    screen.blit(square.img, square.rect)
     pygame.display.update()
     shuffle()
     while True:  # Пока запущено
+        time_pause = 0
         pause_mx, pause_my = pygame.mouse.get_pos()
-        for event in pygame.event.get():
-            if event.type == KEYDOWN:  # Условие на нажатие любой кнопки
-                if event.key == K_s:
-                    pygame.mixer_music.stop()# Условие на нажатие кнопки S
-                if (event.key == pygame.K_SPACE) and (mx-20 <= pause_mx <= mx+20) and (my-20 <= pause_my <= my+20):
-                    paused = False
-                    start_time = start_time + time_pause
-                if event.key == K_ESCAPE:  # Условие на нажатие кнопки Escapezz
-                    main_menu(screen)  # Возвращение в главное меню
         pygame.time.Clock().tick(60)
         pygame.display.update()
         if not paused:
             pygame.mixer_music.unpause()
-            time_pause = 0
             time_score = pygame.time.get_ticks() - start_time
             seconds = int(time_score / 1000 % 60)
             minutes = int(time_score / 60000 % 24)
@@ -248,7 +252,6 @@ def game():  # Функция окна "Играть"
             draw_text('Кол-во очков: {}'.format(score.points), font, white, screen, 110, 20)
             draw_text('Рекорд: {}'.format(score.high_score), font, white, screen, 70, 50)
             draw_text("Время: {0:02}:{1:02}".format(minutes, seconds), font, white, screen, 90, 80)
-            screen.blit(square.img, (mx - 15, my - 15))
             if time_score >= 15:
                 odds = 11
                 max_bullet_speed = 2
@@ -292,8 +295,14 @@ def game():  # Функция окна "Играть"
             bullets.draw(screen)
             bonuses.draw(screen)
             bonus = square.collide(bonuses)
-
-
+            if square.collide(bullets): #Тут еще надо добавить Очки и время чтоб сохранялись.
+                pygame.mixer_music.stop()
+                game_over_screen()
+            if bonus:
+                score.points += 10
+                bonus.kill()
+            square.set_pos(mx-15, my-15)
+            screen.blit(square.img, square.rect)
             for event in pygame.event.get():
                 if event.type == pygame.KEYDOWN:
                     if event.key == pygame.K_SPACE:
@@ -309,6 +318,16 @@ def game():  # Функция окна "Играть"
                                       (res_height/2+40))
         else:
             time_pause = pygame.time.get_ticks() - start_time - time_score
+            for event in pygame.event.get():
+                if event.type == KEYDOWN:  # Условие на нажатие любой кнопки
+                    if event.key == K_s:
+                        pygame.mixer_music.stop()  # Условие на нажатие кнопки S
+                    if (event.key == pygame.K_SPACE) and (mx - 20 <= pause_mx <= mx + 20) and (
+                            my - 20 <= pause_my <= my + 20):
+                        paused = False
+                        start_time = start_time + time_pause
+                    if event.key == K_ESCAPE:  # Условие на нажатие кнопки Escapezz
+                        main_menu(screen)  # Возвращение в главное меню
 
 
 
