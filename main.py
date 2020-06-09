@@ -39,8 +39,7 @@ font = pygame.font.SysFont(None, 40)  # Задаем размер шрифта
 class Block(pygame.sprite.Sprite):  # Класс блок (игрок) с функциями соприкосновения и позиционирования
     def __init__(self):
         super(Block, self).__init__()
-        self.img = pygame.Surface((30, 30))
-        self.img.fill(player_color)
+        self.img = pygame.image.load('Assets/char/Spaceship_dodge-PC.png').convert_alpha()
         self.rect = self.img.get_rect()
         self.centerx = self.rect.centerx
         self.centery = self.rect.centery
@@ -70,7 +69,7 @@ class Bullet(pygame.sprite.Sprite):  # Класс пули с функциями
     # установки направления
     def __init__(self, xpos, ypos, hspeed, vspeed):
         super(Bullet, self).__init__()
-        self.image = pygame.image.load('bullet.png')
+        self.image = pygame.image.load('Assets/char/bullet.png')
         self.rect = self.image.get_rect()
         self.rect.x = xpos
         self.rect.y = ypos
@@ -185,7 +184,7 @@ def game_over_screen():  # Функция окна смерти
 
 def main_menu(screen):  # Функция окна "Главное меню"
     info_object = pygame.display.Info()
-    print(info_object)
+    # print(info_object)  #  для дебага
 
     if pygame.mixer_music.get_busy():  # Проверка на проигрывание музыки
         pass
@@ -265,7 +264,7 @@ def game():  # Функция окна "Играть"
     min_bullet_speed = 1  # Минимальная скорость снаряядов
     max_bullet_speed = 2  # Максимальная скорость снарядов
     bullets_per_tick = 3  # Кол-во ракет за тик
-    background_surf = pygame.image.load('background.png')
+    background_surf = pygame.image.load('Assets/background/background.png')
     draw_repeating_background(background_surf)
     pygame.display.update()
     shuffle()
@@ -385,25 +384,69 @@ def game():  # Функция окна "Играть"
 
 
 def options(screen):  # Функция окна "Настройки"
+    info_object = pygame.display.Info()
+    # print(info_object)  #  для дебага
     global res_width, res_height, flags
     screen.fill(black)  # Пока запущено
+
+    option_image = pygame.image.load("Assets/menu/Options Button.png")
+    option_image = pygame.transform.scale(option_image, (300, 100))  # Задание размера "Меню"
+    option_rect = option_image.get_rect()
+
+    back_image = pygame.image.load("Assets/menu/Back Button.png")
+    back_image = pygame.transform.scale(back_image, (200, 67))
+    back_rect = back_image.get_rect()
+
+    res_image = pygame.image.load("Assets/menu/Resolution Button.png")
+    res_image = pygame.transform.scale(res_image, (200, 67))
+    res_rect = res_image.get_rect()
+
+    fullres_image = pygame.image.load("Assets/menu/Fullscreen Button.png")
+    fullres_image = pygame.transform.scale(fullres_image, (200, 67))
+    fullres_rect = fullres_image.get_rect()
+
+    fullhd_image = pygame.image.load("Assets/menu/1980x1024 Button.png")
+    fullhd_image = pygame.transform.scale(fullhd_image, (200, 67))
+    fullhd_rect = fullhd_image.get_rect()
+
+    hd_image = pygame.image.load("Assets/menu/1600x900 Button.png")
+    hd_image = pygame.transform.scale(hd_image,(200, 67))
+    hd_rect = hd_image.get_rect()
+
+    wxga_image = pygame.image.load("Assets/menu/1280x720 Button.png")
+    wxga_image = pygame.transform.scale(wxga_image, (200, 67))
+    wxga_rect = wxga_image.get_rect()
+
     while True:
         mx, my = pygame.mouse.get_pos()  # переменные для хранения позиции мыши
         click = False
-        draw_text('Опции', font, (255, 255, 255), screen, res_width / 2, 20)  # Отрисовка белого текста
-        resolution = pygame.Rect(100, 100, 200, 50)  # Параметры прямоугольника для кнопки
-        full_screen = pygame.Rect(100, 200, 200, 50)  # Параметры прямоугольника для кнопки
-        full_hd = pygame.Rect(350, 100, 200, 50)  # Параметры прямоугольника для кнопки
-        wxga = pygame.Rect(600, 100, 200, 50)  # Параметры прямоугольника для кнопки
-        hd = pygame.Rect(850, 100, 200, 50)  # Параметры прямоугольника для кнопки
-        back = pygame.Rect(100, 300, 200, 50)  # Параметры прямоугольника для кнопки
 
-        pygame.draw.rect(screen, red, resolution)  # Отрисовка кнопки
-        draw_text('Разрешение экрана', font, white, screen, 100, 100)  # Отрисовка текста кнопки
-        pygame.draw.rect(screen, red, full_screen)  # Отрисовка кнопки
-        draw_text('Полноэкранный режим', font, white, screen, 100, 200)  # Отрисовка текста кнопки
-        pygame.draw.rect(screen, red, back)
-        draw_text('Назад', font, white, screen, 100, 300)
+        screen.blit(option_image, ((info_object.current_w / 2) - option_rect.centerx,
+                                 (info_object.current_h / 10) - option_rect.centery))
+
+        res_rect.move_ip((info_object.current_w / 2) - res_rect.centerx,
+                            (info_object.current_h / 4) - res_rect.centery)
+        screen.blit(res_image, res_rect)
+
+        fullhd_rect.move_ip((info_object.current_w / 3) - fullhd_rect.centerx,
+                          (info_object.current_h / 2.8 - fullhd_rect.centery))
+        screen.blit(fullhd_image, fullhd_rect)
+
+        hd_rect.move_ip((info_object.current_w / 2) - hd_rect.centerx,
+                            (info_object.current_h / 2.8 - hd_rect.centery))
+        screen.blit(hd_image, hd_rect)
+
+        wxga_rect.move_ip((info_object.current_w / 1.5) - wxga_rect.centerx,
+                        (info_object.current_h / 2.8 - wxga_rect.centery))
+        screen.blit(wxga_image, wxga_rect)
+
+        fullres_rect.move_ip((info_object.current_w / 2) - fullres_rect.centerx,
+                                (info_object.current_h / 2.15 - fullres_rect.centery))
+        screen.blit(fullres_image, fullres_rect)
+
+        back_rect.move_ip((info_object.current_w / 2) - back_rect.centerx,
+                            (info_object.current_h / 1.75 - back_rect.centery))
+        screen.blit(back_image, back_rect)
 
         for event in pygame.event.get():  # Считывание всех действий мыши и клавиатуры
             if event.type == KEYDOWN:  # Условие на нажатие любой кнопки
@@ -414,8 +457,8 @@ def options(screen):  # Функция окна "Настройки"
                 if event.button == 1:  # Если нажата
                     click = True  # инвертируем флаг
 
-        if full_screen.collidepoint(mx, my) and click:
-            if flags & FULLSCREEN is False:
+        if fullres_rect.collidepoint(mx, my) and click:
+            if flags & FULLSCREEN == False:
                 flags |= FULLSCREEN
                 screen = pygame.display.set_mode((width[0], heigh[0]), flags)
                 res_width, res_height = width[0], heigh[0]
@@ -424,30 +467,29 @@ def options(screen):  # Функция окна "Настройки"
                 flags ^= FULLSCREEN
                 screen = pygame.display.set_mode((res_width, res_height), flags)
 
-        if resolution.collidepoint(mx, my) and click:
+        if res_rect.collidepoint(mx, my) and click:
             screen.fill(black)  # Пока запущено
-            pygame.draw.rect(screen, red, full_hd)  # Отрисовка кнопки
+            pygame.draw.rect(screen, red, fullhd_rect)  # Отрисовка кнопки
             draw_text('1920x1080', font, white, screen, 350, 100)  # Отрисовка текста кнопки
-            pygame.draw.rect(screen, red, wxga)  # Отрисовка кнопки
+            pygame.draw.rect(screen, red, wxga_rect)  # Отрисовка кнопки
             draw_text('1600x900', font, white, screen, 600, 100)  # Отрисовка текста кнопки
-            pygame.draw.rect(screen, red, hd)  # Отрисовка кнопки
+            pygame.draw.rect(screen, red, hd_rect)  # Отрисовка кнопки
             draw_text('1280x720', font, white, screen, 850, 100)  # Отрисовка текста кнопки
             pygame.display.update()
-
-        if back.collidepoint(mx, my) and click:
+        if back_rect.collidepoint(mx, my) and click:
             main_menu(screen)
 
-        if full_hd.collidepoint(mx, my) and click:
+        if fullhd_rect.collidepoint(mx, my) and click:
             screen = pygame.display.set_mode((width[0], heigh[0]))
             res_height = heigh[0]
             res_width = width[0]
 
-        if wxga.collidepoint(mx, my) and click:
+        if hd_rect.collidepoint(mx, my) and click:
             screen = pygame.display.set_mode((width[1], heigh[1]))
             res_height = heigh[1]
             res_width = width[1]
 
-        if hd.collidepoint(mx, my) and click:
+        if wxga_rect.collidepoint(mx, my) and click:
             screen = pygame.display.set_mode((width[2], heigh[2]))
             res_height = heigh[2]
             res_width = width[2]
