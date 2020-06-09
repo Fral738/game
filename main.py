@@ -20,7 +20,9 @@ speed = 1
 
 # ------------------------------------- Инициализация плеера ---------------------------------------------------
 pygame.mixer.init(frequency=44100, size=-16, channels=2, buffer=4096)
-songs = ['song1.mp3', 'song2.mp3', 'song3.mp3']
+songs = ['Assets/music/song1.mp3', 'Assets/music/song2.mp3',
+         'Assets/music/song3.mp3', 'Assets/music/song4.mp3',
+         'Assets/music/song5.mp3','Assets/music/song6.mp3' ]
 song_end = pygame.USEREVENT + 1
 current_song = None
 pygame.mixer_music.set_endevent(song_end)
@@ -169,7 +171,7 @@ def game_over_screen():  # Функция окна смерти
     draw_text('Нажмите ESC, чтобы выйти', font, white, screen, res_width / 2, res_height / 2)
     # -------------------------------------------------------------------------------------------------------------
     pygame.display.update()
-    pygame.mixer_music.load('death song.mp3')
+    pygame.mixer_music.load('Assets/music/death song.mp3')
     pygame.mixer_music.play()
     # --------------------------------- Проверка условий нажатий кнопок -------------------------------------------
     while True:
@@ -184,13 +186,13 @@ def game_over_screen():  # Функция окна смерти
 
 def main_menu(screen):  # Функция окна "Главное меню"
     info_object = pygame.display.Info()
-    # print(info_object)  #  для дебага
+    print(info_object)  #  для дебага
 
     if pygame.mixer_music.get_busy():  # Проверка на проигрывание музыки
         pass
     else:
-        pygame.mixer_music.load('main menu melody.mp3')
-        pygame.mixer_music.play()
+       pygame.mixer_music.load('Assets/music/main menu melody.mp3')
+       pygame.mixer_music.play()
 
     # -------------------- Блок с отрисовкой кнопок ------------------------------------------
     menu_image = pygame.image.load("Assets/menu/Menu Button.png")
@@ -263,7 +265,7 @@ def game():  # Функция окна "Играть"
     throw = 15  # Вероятность срабатывания
     min_bullet_speed = 1  # Минимальная скорость снаряядов
     max_bullet_speed = 2  # Максимальная скорость снарядов
-    bullets_per_tick = 3  # Кол-во ракет за тик
+    bullets_per_tick = 1  # Кол-во ракет за тик
     background_surf = pygame.image.load('Assets/background/background.png')
     draw_repeating_background(background_surf)
     pygame.display.update()
@@ -286,35 +288,35 @@ def game():  # Функция окна "Играть"
 
             if 15 <= round(time_score / 1000) <= 30:
                 throw = 12
+                max_bullet_speed = 2
+            elif 30 <= round(time_score / 1000) <= 60:
+                throw = 11
                 max_bullet_speed = 3
-            elif 30 <= round(time_score / 1000) <= 45:
+                bullets_per_tick = 2
+            elif 60 <= round(time_score / 1000) <= 90:
                 throw = 10
-                max_bullet_speed = 5
-                bullets_per_tick = 4
-            elif 45 <= round(time_score / 1000) <= 60:
-                throw = 7
                 max_bullet_speed = 6
                 min_bullet_speed = 2
-            elif 60 <= round(time_score / 1000) <= 75:
+            elif 90 <= round(time_score / 1000) <= 120:
                 throw = 6
-                max_bullet_speed = 5
-            elif 75 <= round(time_score / 1000) <= 90:
                 max_bullet_speed = 7
-                bullets_per_tick = 5
-            elif 90 <= round(time_score / 1000) <= 105:
+            elif 120 <= round(time_score / 1000) <= 150:
+                max_bullet_speed = 8
+                bullets_per_tick = 4
+            elif 150 <= round(time_score / 1000) <= 180:
                 min_bullet_speed = 4
-            elif 105 <= round(time_score / 1000) <= 120:
-                bullets_per_tick = 6
+            elif 180 <= round(time_score / 1000) <= 210:
+                bullets_per_tick = 5
                 max_bullet_speed = 10
-            elif 120 <= round(time_score / 1000) <= 135:
+            elif 210 <= round(time_score / 1000) <= 240:
                 max_bullet_speed = 12
-            elif 135 <= round(time_score / 1000) >= 150:
+            elif 240 <= round(time_score / 1000) >= 270:
                 bullets_per_tick = 7
                 min_bullet_speed = 6
                 max_bullet_speed = 13
-            elif 150 <= round(time_score / 1000) >= 165:
+            elif 270 <= round(time_score / 1000) >= 300:
                 bullets_per_tick = 8
-                max_bullet_speed = 115
+                max_bullet_speed = 15
 
             if random.randint(1, throw) == 1:
                 if random.randint(1, throw * 10) == 1:
@@ -356,8 +358,8 @@ def game():  # Функция окна "Играть"
                             screen.blit(transp_surf, transp_surf.get_rect())
                             pygame.mouse.set_visible(True)
                             draw_text('Пауза', font, white, screen, res_width / 2, res_height / 2 - 120)
-                            draw_text('Для того, чтобы продолжить, наведите мышку на квадрат', font, white, screen,
-                                      res_width / 2, res_height / 2 + 120)
+                            draw_text('Для того, чтобы продолжить, наведите мышку на модель игрока', font, white,
+                                      screen, res_width / 2, res_height / 2 + 120)
                             draw_text('Нажмите ESC чтобы выйти', font, white, screen, res_width / 2,
                                       res_height / 2 )
                             draw_text('Нажмите ПРОБЕЛ чтобы продолжить', font, white, screen, res_width / 2,
