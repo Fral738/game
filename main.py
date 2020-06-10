@@ -60,8 +60,7 @@ class Block(pygame.sprite.Sprite):  # Класс блок (игрок) с фун
 class Bonus(pygame.sprite.Sprite):  # Класс бонуса (элемент игры, дающий доп. очки)
     def __init__(self, x, y):
         super(Bonus, self).__init__()
-        self.image = pygame.Surface((15, 15))
-        self.image.fill(bonus_color)
+        self.image = pygame.image.load('Assets/pickups/XP.png')
         self.rect = self.image.get_rect()
         self.rect.x = x - self.rect.centerx
         self.rect.y = y - self.rect.centery
@@ -262,7 +261,7 @@ def game():  # Функция окна "Играть"
     square = Block()
     bullets = pygame.sprite.Group()
     bonuses = pygame.sprite.Group()
-    throw = 15  # Вероятность срабатывания
+    throw = 50  # Вероятность срабатывания
     min_bullet_speed = 1  # Минимальная скорость снаряядов
     max_bullet_speed = 2  # Максимальная скорость снарядов
     bullets_per_tick = 1  # Кол-во ракет за тик
