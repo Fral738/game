@@ -469,15 +469,6 @@ def options(screen):  # Функция окна "Настройки"
                 flags ^= FULLSCREEN
                 screen = pygame.display.set_mode((res_width, res_height), flags)
 
-        if res_rect.collidepoint(mx, my) and click:
-            screen.fill(black)  # Пока запущено
-            pygame.draw.rect(screen, red, fullhd_rect)  # Отрисовка кнопки
-            draw_text('1920x1080', font, white, screen, 350, 100)  # Отрисовка текста кнопки
-            pygame.draw.rect(screen, red, wxga_rect)  # Отрисовка кнопки
-            draw_text('1600x900', font, white, screen, 600, 100)  # Отрисовка текста кнопки
-            pygame.draw.rect(screen, red, hd_rect)  # Отрисовка кнопки
-            draw_text('1280x720', font, white, screen, 850, 100)  # Отрисовка текста кнопки
-            pygame.display.update()
         if back_rect.collidepoint(mx, my) and click:
             main_menu(screen)
 
